@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BetTrack — Post Slip</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'DM Sans',sans-serif;background:#080810;color:white;min-height:100vh;padding-bottom:40px}
+
+    /* NAV */
+    nav{background:#0d0d18;padding:15px 25px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.05);position:sticky;top:0;z-index:100}
+    .logo{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:900}.logo span{color:#00f5a0}
+    .back-btn{background:none;border:none;color:rgba(255,255,255,0.5);font-size:1.5rem;cursor:pointer}
+
+    /* FORM */
+    .form-wrap{max-width:500px;margin:0 auto;padding:25px}
+    .page-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:5px}
+    .page-sub{color:rgba(255,255,255,0.4);font-size:0.88rem;margin-bottom:30px}
+
+    /* TABS */
+    .input-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:25px}
+    .input-tab{padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.5);font-family:'Syne',sans-serif;font-weight:700;cursor:pointer;font-size:0.88rem;transition:all 0.2s;text-align:center}
+    .input-tab.active{background:rgba(0,245,160,0.1);border-color:rgba(0,245,160,0.3);color:#00f5a0}
+
+    /* SECTIONS */
+    .section{margin-bottom:25px}
+    .section-label{font-size:0.72rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+
+    /* IMAGE UPLOAD */
+    .upload-area{border:2px dashed rgba(255,255,255,0.1);border-radius:14px;padding:40px 20px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative}
+    .upload-area:hover{border-color:rgba(0,245,160,0.3);background:rgba(0,245,160,0.03)}
+    .upload-area.has-image{padding:0;border-style:solid;border-color:rgba(0,245,160,0.3)}
+    .upload-icon{font-size:3rem;margin-bottom:12px}
+    .upload-text{color:rgba(255,255,255,0.5);font-size:0.9rem;margin-bottom:8px}
+    .upload-sub{color:rgba(255,255,255,0.3);font-size:0.78rem}
+    #slipImageInput{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+    #imagePreview{width:100%;border-radius:12px;max-height:300px;object-fit:cover;display:none}
+    .remove-img{position:absolute;top:10px;right:10px;background:rgba(255,107,107,0.8);border:none;color:white;width:30px;height:30px;border-radius:50%;font-size:1rem;cursor:pointer;display:none;z-index:10}
+
+    /* FORM INPUTS */
+    .form-group{margin-bottom:16px}
+    .form-group label{display:block;font-size:0.78rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+    .form-group input,
+    .form-group select,
+    .form-group textarea{width:100%;padding:13px 15px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:white;font-size:0.95rem;font-family:'DM Sans',sans-serif;transition:border 0.2s}
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus{outline:none;border-color:#00f5a0}
+    .form-group select option{background:#0d0d18;color:white}
+    .form-group textarea{height:80px;resize:none}
+    .input-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+    /* BOOKMAKERS */
+    .bookie-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .bookie-opt{padding:10px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.5);font-size:0.78rem;font-weight:600;cursor:pointer;text-align:center;transition:all 0.2s}
+    .bookie-opt.selected{background:rgba(0,245,160,0.1);border-color:rgba(0,245,160,0.3);color:#00f5a0}
+    #bookmakerInput{display:none}
+
+    /* SELECTIONS */
+    .selections-wrap{display:flex;flex-direction:column;gap:10px}
+    .selection-row{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px;position:relative}
+    .selection-row input{width:100%;background:none;border:none;color:white;font-size:0.88rem;padding:0;margin-bottom:8px}
+    .selection-row input:focus{outline:none}
+    .selection-row input::placeholder{color:rgba(255,255,255,0.25)}
+    .selection-bottom{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .selection-bottom input{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:8px 10px;font-size:0.82rem}
+    .remove-sel{position:absolute;top:10px;right:10px;background:none;border:none;color:rgba(255,107,107,0.6);cursor:pointer;font-size:1rem}
+    .add-sel-btn{background:none;border:2px dashed rgba(255,255,255,0.1);color:rgba(255,255,255,0.4);padding:12px;border-radius:10px;width:100%;cursor:pointer;font-size:0.85rem;transition:all 0.2s}
+    .add-sel-btn:hover{border-color:rgba(0,245,160,0.3);color:#00f5a0}
+
+    /* VISIBILITY */
+    .visibility-toggle{display:flex;gap:10px}
+    .vis-opt{flex:1;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.5);font-size:0.85rem;cursor:pointer;text-align:center;transition:all 0.2s}
+    .vis-opt.selected{background:rgba(0,245,160,0.1);border-color:rgba(0,245,160,0.3);color:#00f5a0}
+
+    /* SUBMIT */
+    .submit-btn{width:100%;background:#00f5a0;color:#080810;border:none;padding:16px;border-radius:12px;font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;transition:all 0.2s;margin-top:10px}
+    .submit-btn:hover{opacity:0.9;transform:translateY(-1px)}
+    .submit-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+
+    /* PROGRESS */
+    .progress{height:3px;background:rgba(255,255,255,0.05);border-radius:2px;margin-bottom:25px;overflow:hidden}
+    .progress-bar{height:100%;background:#00f5a0;border-radius:2px;transition:width 0.3s;width:0%}
+
+    .error-msg{color:#ff6b6b;font-size:0.82rem;text-align:center;margin-top:10px}
+    .success-msg{color:#00f5a0;font-size:0.82rem;text-align:center;margin-top:10px}
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <button class="back-btn" onclick="window.location.href='/dashboard'">←</button>
+  <div class="logo">Bet<span>Track</span></div>
+  <div style="width:40px"></div>
+</nav>
+
+<div class="form-wrap">
+  <div class="page-title">Post Slip 🎯</div>
+  <div class="page-sub">Upload your betting slip to track performance</div>
+
+  <!-- PROGRESS -->
+  <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+
+  <form id="slipForm" enctype="multipart/form-data">
+
+    <!-- INPUT TYPE TABS -->
+    <div class="input-tabs">
+      <div class="input-tab active" onclick="switchTab('image',this)">
+        📸 Upload Image
+      </div>
+      <div class="input-tab" onclick="switchTab('code',this)">
+        🔢 Enter Code
+      </div>
+    </div>
+
+    <!-- IMAGE UPLOAD -->
+    <div class="section" id="imageSection">
+      <div class="section-label">Slip Image</div>
+      <div class="upload-area" id="uploadArea">
+        <input type="file" id="slipImageInput" name="slip_image"
+               accept="image/*" onchange="previewImage(this)"/>
+        <div id="uploadPlaceholder">
+          <div class="upload-icon">📸</div>
+          <div class="upload-text">Tap to upload slip image</div>
+          <div class="upload-sub">JPG, PNG up to 10MB</div>
+        </div>
+        <img id="imagePreview" src="" alt="Preview"/>
+        <button type="button" class="remove-img" id="removeImg" onclick="removeImage()">✕</button>
+      </div>
+    </div>
+
+    <!-- CODE INPUT -->
+    <div class="section" id="codeSection" style="display:none">
+      <div class="section-label">Booking Code</div>
+      <div class="form-group">
+        <input type="text" name="slip_code" id="slipCode"
+               placeholder="e.g. SP123456789 or BJ987654321"
+               style="text-transform:uppercase;letter-spacing:2px"/>
+      </div>
+    </div>
+
+    <!-- BOOKMAKER -->
+    <div class="section">
+      <div class="section-label">Bookmaker</div>
+      <div class="bookie-grid">
+        <div class="bookie-opt" onclick="selectBookie('Sportybet',this)">Sportybet</div>
+        <div class="bookie-opt" onclick="selectBookie('Bet9ja',this)">Bet9ja</div>
+        <div class="bookie-opt" onclick="selectBookie('1xBet',this)">1xBet</div>
+        <div class="bookie-opt" onclick="selectBookie('Betway',this)">Betway</div>
+        <div class="bookie-opt" onclick="selectBookie('Parimatch',this)">Parimatch</div>
+        <div class="bookie-opt" onclick="selectBookie('other',this)">Other</div>
+      </div>
+      <input type="hidden" name="bookmaker" id="bookmakerInput"/>
+      <input type="text" id="otherBookie" placeholder="Enter bookmaker name"
+             style="display:none;margin-top:10px;width:100%;padding:12px 15px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:white;font-size:0.95rem"/>
+    </div>
+
+    <!-- STAKE & ODDS -->
+    <div class="section">
+      <div class="section-label">Bet Details</div>
+      <div class="input-row">
+        <div class="form-group">
+          <label>Stake (₦)</label>
+          <input type="number" name="stake" id="stakeInput"
+                 placeholder="e.g. 500" min="0" step="any"
+                 oninput="calcPotentialWin()"/>
+        </div>
+        <div class="form-group">
+          <label>Total Odds</label>
+          <input type="number" name="odds" id="oddsInput"
+                 placeholder="e.g. 5.50" min="1" step="any"
+                 oninput="calcPotentialWin()"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Potential Win (₦)</label>
+        <input type="number" name="potential_win" id="potWinInput"
+               placeholder="Auto-calculated or enter manually" min="0" step="any"/>
+      </div>
+    </div>
+
+    <!-- TITLE -->
+    <div class="section">
+      <div class="section-label">Slip Title (Optional)</div>
+      <div class="form-group">
+        <input type="text" name="title" placeholder="e.g. Saturday Accumulator"/>
+      </div>
+    </div>
+
+    <!-- SELECTIONS -->
+    <div class="section">
+      <div class="section-label">Selections (Optional)</div>
+      <div class="selections-wrap" id="selectionsWrap">
+        <div class="selection-row">
+          <button type="button" class="remove-sel" onclick="removeSel(this)">✕</button>
+          <input type="text" name="match[]" placeholder="Match — e.g. Man Utd vs Arsenal"/>
+          <div class="selection-bottom">
+            <input type="text"   name="prediction[]" placeholder="Prediction — e.g. Man Utd Win"/>
+            <input type="number" name="odds[]"        placeholder="Odds — e.g. 2.10" step="any"/>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="add-sel-btn" onclick="addSelection()">
+        + Add Selection
+      </button>
+    </div>
+
+    <!-- VISIBILITY -->
+    <div class="section">
+      <div class="section-label">Visibility</div>
+      <div class="visibility-toggle">
+        <div class="vis-opt selected" onclick="setVisibility(true,this)">
+          🌍 Public
+        </div>
+        <div class="vis-opt" onclick="setVisibility(false,this)">
+          🔒 Private
+        </div>
+      </div>
+      <input type="hidden" name="is_public" id="isPublic" value="true"/>
+    </div>
+
+    <!-- SUBMIT -->
+    <button type="button" class="submit-btn" id="submitBtn" onclick="submitSlip()">
+      Post Slip 🎯
+    </button>
+    <p class="error-msg"   id="errorMsg"></p>
+    <p class="success-msg" id="successMsg"></p>
+
+  </form>
+</div>
+
+<script>
+let selectedBookie  = ''
+let isPublic        = true
+let currentTab      = 'image'
+
+// ── TAB SWITCH ────────────────────────────────────
+function switchTab(tab, el) {
+  currentTab = tab
+  document.querySelectorAll('.input-tab').forEach(t => t.classList.remove('active'))
+  el.classList.add('active')
+  document.getElementById('imageSection').style.display = tab === 'image' ? 'block' : 'none'
+  document.getElementById('codeSection').style.display  = tab === 'code'  ? 'block' : 'none'
+  updateProgress()
+}
+
+// ── IMAGE PREVIEW ─────────────────────────────────
+function previewImage(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader()
+    reader.onload = e => {
+      const preview = document.getElementById('imagePreview')
+      const area    = document.getElementById('uploadArea')
+      const placeholder = document.getElementById('uploadPlaceholder')
+      const removeBtn   = document.getElementById('removeImg')
+      preview.src             = e.target.result
+      preview.style.display   = 'block'
+      placeholder.style.display = 'none'
+      removeBtn.style.display = 'block'
+      area.classList.add('has-image')
+    }
+    reader.readAsDataURL(input.files[0])
+    updateProgress()
+  }
+}
+
+function removeImage() {
+  document.getElementById('slipImageInput').value = ''
+  document.getElementById('imagePreview').style.display   = 'none'
+  document.getElementById('uploadPlaceholder').style.display = 'block'
+  document.getElementById('removeImg').style.display = 'none'
+  document.getElementById('uploadArea').classList.remove('has-image')
+  updateProgress()
+}
+
+// ── BOOKMAKER SELECT ──────────────────────────────
+function selectBookie(name, el) {
+  document.querySelectorAll('.bookie-opt').forEach(b => b.classList.remove('selected'))
+  el.classList.add('selected')
+  selectedBookie = name
+  const otherInput = document.getElementById('otherBookie')
+  if (name === 'other') {
+    otherInput.style.display = 'block'
+    otherInput.focus()
+    document.getElementById('bookmakerInput').value = ''
+  } else {
+    otherInput.style.display = 'none'
+    document.getElementById('bookmakerInput').value = name
+  }
+  updateProgress()
+}
+
+document.getElementById('otherBookie').addEventListener('input', function() {
+  document.getElementById('bookmakerInput').value = this.value
+})
+
+// ── CALC POTENTIAL WIN ────────────────────────────
+function calcPotentialWin() {
+  const stake = parseFloat(document.getElementById('stakeInput').value)
+  const odds  = parseFloat(document.getElementById('oddsInput').value)
+  if (stake && odds) {
+    document.getElementById('potWinInput').value = (stake * odds).toFixed(2)
+  }
+  updateProgress()
+}
+
+// ── SELECTIONS ────────────────────────────────────
+function addSelection() {
+  const wrap = document.getElementById('selectionsWrap')
+  const div  = document.createElement('div')
+  div.className = 'selection-row'
+  div.innerHTML = `
+    <button type="button" class="remove-sel" onclick="removeSel(this)">✕</button>
+    <input type="text"   name="match[]"      placeholder="Match — e.g. Chelsea vs Liverpool"/>
+    <div class="selection-bottom">
+      <input type="text"   name="prediction[]" placeholder="Prediction"/>
+      <input type="number" name="odds[]"        placeholder="Odds" step="any"/>
+    </div>`
+  wrap.appendChild(div)
+}
+
+function removeSel(btn) {
+  const rows = document.querySelectorAll('.selection-row')
+  if (rows.length > 1) btn.closest('.selection-row').remove()
+}
+
+// ── VISIBILITY ────────────────────────────────────
+function setVisibility(pub, el) {
+  isPublic = pub
+  document.querySelectorAll('.vis-opt').forEach(v => v.classList.remove('selected'))
+  el.classList.add('selected')
+  document.getElementById('isPublic').value = pub
+}
+
+// ── PROGRESS ──────────────────────────────────────
+function updateProgress() {
+  let progress = 0
+  const hasImage = document.getElementById('imagePreview').style.display !== 'none'
+  const hasCode  = document.getElementById('slipCode').value.trim()
+  const hasStake = document.getElementById('stakeInput').value
+  const hasBookie = document.getElementById('bookmakerInput').value
+
+  if (hasImage || hasCode) progress += 35
+  if (hasBookie)           progress += 25
+  if (hasStake)            progress += 25
+  if (progress > 0)        progress += 15
+
+  document.getElementById('progressBar').style.width = Math.min(progress, 100) + '%'
+}
+
+// ── SUBMIT ────────────────────────────────────────
+async function submitSlip() {
+  const btn       = document.getElementById('submitBtn')
+  const errorMsg  = document.getElementById('errorMsg')
+  const successMsg= document.getElementById('successMsg')
+  errorMsg.textContent   = ''
+  successMsg.textContent = ''
+
+  // Validate
+  const hasImage  = document.getElementById('slipImageInput').files.length > 0
+  const hasCode   = document.getElementById('slipCode')?.value?.trim()
+  const bookmaker = document.getElementById('bookmakerInput').value
+  const stake     = document.getElementById('stakeInput').value
+
+  if (!hasImage && !hasCode) {
+    errorMsg.textContent = '❌ Please upload an image or enter a booking code'
+    return
+  }
+  if (!bookmaker) {
+    errorMsg.textContent = '❌ Please select a bookmaker'
+    return
+  }
+  if (!stake) {
+    errorMsg.textContent = '❌ Please enter your stake amount'
+    return
+  }
+
+  btn.disabled    = true
+  btn.textContent = '⏳ Posting slip...'
+  document.getElementById('progressBar').style.width = '80%'
+
+  try {
+    const formData = new FormData(document.getElementById('slipForm'))
+    const res      = await fetch('/submit_slip', {
+      method: 'POST',
+      body:   formData
+    })
+    const data = await res.json()
+
+    if (data.success) {
+      document.getElementById('progressBar').style.width = '100%'
+      btn.textContent        = '✅ Posted!'
+      successMsg.textContent = '✅ Slip posted successfully! Redirecting...'
+      setTimeout(() => window.location.href = '/dashboard', 1500)
+    } else {
+      errorMsg.textContent = '❌ ' + data.error
+      btn.disabled         = false
+      btn.textContent      = 'Post Slip 🎯'
+    }
+  } catch(err) {
+    errorMsg.textContent = '❌ Connection error. Try again.'
+    btn.disabled         = false
+    btn.textContent      = 'Post Slip 🎯'
+  }
+}
+
+// Listen for stake/odds input
+document.getElementById('stakeInput').addEventListener('input', updateProgress)
+document.getElementById('oddsInput').addEventListener('input',  updateProgress)
+</script>
+</body>
+</html>

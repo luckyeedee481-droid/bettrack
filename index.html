@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BetTrack — Track Your Betting Performance</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'DM Sans',sans-serif;background:#080810;color:white;min-height:100vh}
+
+    /* NAV */
+    nav{padding:20px 30px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.05)}
+    .logo{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:900;color:white}
+    .logo span{color:#00f5a0}
+    .nav-btns{display:flex;gap:10px}
+    .btn-ghost{background:transparent;color:white;border:1px solid rgba(255,255,255,0.15);padding:9px 20px;border-radius:8px;cursor:pointer;font-size:0.9rem}
+    .btn-primary{background:#00f5a0;color:#080810;border:none;padding:9px 20px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.9rem}
+
+    /* HERO */
+    .hero{text-align:center;padding:100px 20px 60px;position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;background:radial-gradient(ellipse,rgba(0,245,160,0.06) 0%,transparent 70%);pointer-events:none}
+    .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,245,160,0.08);border:1px solid rgba(0,245,160,0.2);color:#00f5a0;font-size:0.75rem;padding:5px 14px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;margin-bottom:25px}
+    .hero-badge .dot{width:6px;height:6px;border-radius:50%;background:#00f5a0;animation:blink 1.5s infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+    .hero h1{font-family:'Syne',sans-serif;font-size:3.5rem;font-weight:900;line-height:1.1;letter-spacing:-2px;margin-bottom:20px}
+    .hero h1 span{color:#00f5a0}
+    .hero p{color:rgba(255,255,255,0.5);font-size:1.1rem;max-width:500px;margin:0 auto 40px;line-height:1.7}
+    .hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+    .hero-btn-primary{background:#00f5a0;color:#080810;border:none;padding:16px 40px;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;transition:all 0.2s}
+    .hero-btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,245,160,0.3)}
+    .hero-btn-secondary{background:rgba(255,255,255,0.05);color:white;border:1px solid rgba(255,255,255,0.1);padding:16px 40px;border-radius:10px;font-size:1rem;cursor:pointer}
+
+    /* STATS STRIP */
+    .stats-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:rgba(255,255,255,0.05);border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05)}
+    .stat-item{padding:30px 20px;text-align:center;background:#080810}
+    .stat-num{font-family:'Syne',sans-serif;font-size:2rem;font-weight:900;color:#00f5a0}
+    .stat-label{color:rgba(255,255,255,0.4);font-size:0.8rem;margin-top:5px}
+
+    /* FEATURES */
+    .features{padding:80px 20px;text-align:center}
+    .features h2{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:10px}
+    .features h2 span{color:#00f5a0}
+    .features .sub{color:rgba(255,255,255,0.4);margin-bottom:50px}
+    .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;max-width:900px;margin:0 auto}
+    .feat-card{background:#0d0d18;border:1px solid rgba(255,255,255,0.05);border-radius:16px;padding:28px;text-align:left;transition:all 0.2s}
+    .feat-card:hover{border-color:rgba(0,245,160,0.2);transform:translateY(-3px)}
+    .feat-icon{font-size:2rem;margin-bottom:14px}
+    .feat-card h3{font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px}
+    .feat-card p{color:rgba(255,255,255,0.4);font-size:0.88rem;line-height:1.6}
+
+    /* HOW IT WORKS */
+    .how{padding:80px 20px;background:#0d0d18;text-align:center}
+    .how h2{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:10px}
+    .how h2 span{color:#00f5a0}
+    .how .sub{color:rgba(255,255,255,0.4);margin-bottom:50px}
+    .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;max-width:900px;margin:0 auto}
+    .step-card{padding:25px;text-align:center}
+    .step-num{width:44px;height:44px;border-radius:12px;background:rgba(0,245,160,0.1);border:1px solid rgba(0,245,160,0.2);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;color:#00f5a0;margin:0 auto 16px}
+    .step-card h3{font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px}
+    .step-card p{color:rgba(255,255,255,0.4);font-size:0.85rem;line-height:1.6}
+
+    /* CTA */
+    .cta{padding:80px 20px;text-align:center}
+    .cta h2{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:900;margin-bottom:15px;letter-spacing:-1px}
+    .cta h2 span{color:#00f5a0}
+    .cta p{color:rgba(255,255,255,0.4);margin-bottom:35px}
+    .cta-btn{background:#00f5a0;color:#080810;border:none;padding:18px 50px;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;cursor:pointer;transition:all 0.2s}
+    .cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,245,160,0.3)}
+
+    footer{padding:30px;text-align:center;color:rgba(255,255,255,0.2);font-size:0.85rem;border-top:1px solid rgba(255,255,255,0.05)}
+
+    /* MODALS */
+    .overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:999;align-items:center;justify-content:center}
+    .overlay.show{display:flex}
+    .modal{background:#0d0d18;border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:40px;width:100%;max-width:420px;position:relative}
+    .modal h2{font-family:'Syne',sans-serif;font-weight:800;margin-bottom:5px}
+    .modal p{color:rgba(255,255,255,0.4);font-size:0.9rem;margin-bottom:25px}
+    .close{position:absolute;top:15px;right:20px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:1.5rem;cursor:pointer}
+    .avatars{display:flex;gap:8px;justify-content:center;margin-bottom:20px;flex-wrap:wrap}
+    .avatar-opt{font-size:1.8rem;cursor:pointer;padding:8px;border-radius:10px;border:2px solid transparent;transition:all 0.2s}
+    .avatar-opt.selected{border-color:#00f5a0;background:rgba(0,245,160,0.1)}
+    .form-group{margin-bottom:14px}
+    .form-group label{display:block;font-size:0.8rem;color:rgba(255,255,255,0.5);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
+    .form-group input{width:100%;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:white;font-size:0.95rem;transition:border 0.2s}
+    .form-group input:focus{outline:none;border-color:#00f5a0}
+    .modal-btn{width:100%;background:#00f5a0;color:#080810;border:none;padding:14px;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;margin-bottom:12px;transition:all 0.2s}
+    .modal-btn:hover{opacity:0.9}
+    .modal-btn:disabled{opacity:0.6;cursor:not-allowed}
+    .switch{color:rgba(255,255,255,0.4);font-size:0.85rem;text-align:center}
+    .switch a{color:#00f5a0;cursor:pointer;font-weight:600}
+    .error{color:#ff6b6b;font-size:0.82rem;margin-top:8px;text-align:center}
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Bet<span>Track</span></div>
+  <div class="nav-btns">
+    <button class="btn-ghost" onclick="showLogin()">Login</button>
+    <button class="btn-primary" onclick="showSignup()">Get Started</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge"><div class="dot"></div> Now Live — Free to Use</div>
+  <h1>Track Every Bet.<br/>Prove <span>Your Edge.</span></h1>
+  <p>Upload your betting slips, track results and get verified analytics that show exactly how good you really are.</p>
+  <div class="hero-btns">
+    <button class="hero-btn-primary" onclick="showSignup()">Start Tracking Free →</button>
+    <button class="hero-btn-secondary" onclick="showLogin()">Login</button>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat-item"><div class="stat-num">100%</div><div class="stat-label">Free to Start</div></div>
+  <div class="stat-item"><div class="stat-num">📊</div><div class="stat-label">Real Analytics</div></div>
+  <div class="stat-item"><div class="stat-num">✅</div><div class="stat-label">Verified Results</div></div>
+  <div class="stat-item"><div class="stat-num">🔒</div><div class="stat-label">Secure & Private</div></div>
+</div>
+
+<!-- FEATURES -->
+<div class="features">
+  <h2>Everything You Need to <span>Track Smarter</span></h2>
+  <p class="sub">Stop guessing. Start knowing.</p>
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-icon">📸</div>
+      <h3>Upload Slip Images</h3>
+      <p>Take a photo of your betting slip and upload it directly. We store it securely for your records.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🔢</div>
+      <h3>Enter Slip Codes</h3>
+      <p>Have a booking code? Just type it in along with your stake and potential winnings.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📊</div>
+      <h3>Verified Analytics</h3>
+      <p>See your real win rate, ROI, profit/loss and performance trends over time.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🏆</div>
+      <h3>Performance History</h3>
+      <p>Every bet recorded and tracked. Know exactly which bookmakers and strategies work best for you.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">👥</div>
+      <h3>Share Your Record</h3>
+      <p>Share your verified performance with friends. No more unverified claims — let the stats speak.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">💰</div>
+      <h3>Multi-Bookmaker</h3>
+      <p>Track bets across Sportybet, Bet9ja, 1xBet, Betway and more — all in one place.</p>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="how">
+  <h2>How It <span>Works</span></h2>
+  <p class="sub">Simple. Fast. Accurate.</p>
+  <div class="steps">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <h3>Create Account</h3>
+      <p>Sign up free in under 30 seconds. No credit card needed.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <h3>Post Your Slip</h3>
+      <p>Upload a photo of your slip or enter your booking code and stake.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <h3>Mark Result</h3>
+      <p>After the game, mark your slip as Won or Lost. Enter your winnings.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <h3>See Your Stats</h3>
+      <p>Your dashboard shows real analytics — win rate, ROI, profit/loss.</p>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta">
+  <h2>Ready to Know Your <span>Real Record?</span></h2>
+  <p>Join bettors who track smarter. It's completely free.</p>
+  <button class="cta-btn" onclick="showSignup()">Create Free Account →</button>
+</div>
+
+<footer>© 2025 BetTrack. All rights reserved.</footer>
+
+<!-- SIGNUP MODAL -->
+<div class="overlay" id="signupOverlay">
+  <div class="modal">
+    <button class="close" onclick="hideSignup()">✕</button>
+    <h2>Create Account 🎯</h2>
+    <p>Start tracking your betting performance today</p>
+    <div class="avatars">
+      <span class="avatar-opt selected" onclick="pickAvatar(this)">🎯</span>
+      <span class="avatar-opt" onclick="pickAvatar(this)">🏆</span>
+      <span class="avatar-opt" onclick="pickAvatar(this)">⚽</span>
+      <span class="avatar-opt" onclick="pickAvatar(this)">🔥</span>
+      <span class="avatar-opt" onclick="pickAvatar(this)">💰</span>
+      <span class="avatar-opt" onclick="pickAvatar(this)">😎</span>
+    </div>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="sUsername" placeholder="e.g. lucky_tipster"/>
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="sEmail" placeholder="your@email.com"/>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="sPass" placeholder="Min 6 characters"/>
+    </div>
+    <button class="modal-btn" onclick="doSignup()">Create Account →</button>
+    <p class="switch">Already have an account? <a onclick="switchToLogin()">Login here</a></p>
+    <p class="error" id="sError"></p>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="overlay" id="loginOverlay">
+  <div class="modal">
+    <button class="close" onclick="hideLogin()">✕</button>
+    <h2>Welcome Back! 👋</h2>
+    <p>Login to your BetTrack account</p>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="lEmail" placeholder="your@email.com"/>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="lPass" placeholder="Your password"/>
+    </div>
+    <button class="modal-btn" onclick="doLogin()">Login →</button>
+    <p class="switch">No account? <a onclick="switchToSignup()">Sign up free</a></p>
+    <p class="error" id="lError"></p>
+  </div>
+</div>
+
+<script>
+let selectedAvatar = '🎯'
+
+function pickAvatar(el) {
+  document.querySelectorAll('.avatar-opt').forEach(a => a.classList.remove('selected'))
+  el.classList.add('selected')
+  selectedAvatar = el.textContent
+}
+
+function showSignup()     { document.getElementById('signupOverlay').classList.add('show') }
+function hideSignup()     { document.getElementById('signupOverlay').classList.remove('show') }
+function showLogin()      { document.getElementById('loginOverlay').classList.add('show') }
+function hideLogin()      { document.getElementById('loginOverlay').classList.remove('show') }
+function switchToLogin()  { hideSignup(); showLogin() }
+function switchToSignup() { hideLogin();  showSignup() }
+
+async function doSignup() {
+  const btn      = document.querySelector('#signupOverlay .modal-btn')
+  if (btn.disabled) return
+  btn.disabled   = true
+  btn.textContent = '⏳ Creating account...'
+
+  const username = document.getElementById('sUsername').value
+  const email    = document.getElementById('sEmail').value
+  const pass     = document.getElementById('sPass').value
+
+  if (!username || !email || !pass) {
+    document.getElementById('sError').textContent = '❌ Please fill all fields'
+    btn.disabled    = false
+    btn.textContent = 'Create Account →'
+    return
+  }
+
+  try {
+    const res  = await fetch('/signup', {
+      method:  'POST',
+      headers: {'Content-Type': 'application/json'},
+      body:    JSON.stringify({username, email, password: pass, avatar: selectedAvatar})
+    })
+    const data = await res.json()
+    if (data.success) {
+      btn.textContent = '✅ Redirecting...'
+      window.location.href = '/dashboard'
+    } else {
+      document.getElementById('sError').textContent = '❌ ' + data.error
+      btn.disabled    = false
+      btn.textContent = 'Create Account →'
+    }
+  } catch(err) {
+    document.getElementById('sError').textContent = '❌ Connection error. Try again.'
+    btn.disabled    = false
+    btn.textContent = 'Create Account →'
+  }
+}
+
+async function doLogin() {
+  const btn      = document.querySelector('#loginOverlay .modal-btn')
+  if (btn.disabled) return
+  btn.disabled   = true
+  btn.textContent = '⏳ Logging in...'
+
+  const email = document.getElementById('lEmail').value
+  const pass  = document.getElementById('lPass').value
+
+  if (!email || !pass) {
+    document.getElementById('lError').textContent = '❌ Please fill all fields'
+    btn.disabled    = false
+    btn.textContent = 'Login →'
+    return
+  }
+
+  try {
+    const res  = await fetch('/login', {
+      method:  'POST',
+      headers: {'Content-Type': 'application/json'},
+      body:    JSON.stringify({email, password: pass})
+    })
+    const data = await res.json()
+    if (data.success) {
+      btn.textContent = '✅ Redirecting...'
+      window.location.href = '/dashboard'
+    } else {
+      document.getElementById('lError').textContent = '❌ ' + data.error
+      btn.disabled    = false
+      btn.textContent = 'Login →'
+    }
+  } catch(err) {
+    document.getElementById('lError').textContent = '❌ Connection error. Try again.'
+    btn.disabled    = false
+    btn.textContent = 'Login →'
+  }
+}
+</script>
+</body>
+</html>

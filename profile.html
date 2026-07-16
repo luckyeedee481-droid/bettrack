@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ user.username }} — BetTrack Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'DM Sans',sans-serif;background:#080810;color:white;min-height:100vh;padding-bottom:40px}
+    nav{background:#0d0d18;padding:15px 25px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.05)}
+    .logo{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:900}.logo span{color:#00f5a0}
+    .back-btn{background:none;border:none;color:rgba(255,255,255,0.5);font-size:1.5rem;cursor:pointer}
+
+    /* PROFILE HEADER */
+    .profile-header{padding:30px 25px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.05)}
+    .profile-avatar{font-size:5rem;margin-bottom:12px}
+    .profile-name{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:900;margin-bottom:4px}
+    .profile-username{color:rgba(255,255,255,0.4);font-size:0.9rem;margin-bottom:12px}
+    .profile-bio{color:rgba(255,255,255,0.5);font-size:0.88rem;max-width:300px;margin:0 auto 20px;line-height:1.6}
+    .verified-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,245,160,0.08);border:1px solid rgba(0,245,160,0.2);color:#00f5a0;font-size:0.72rem;padding:4px 12px;border-radius:20px;margin-bottom:16px}
+    .share-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:white;padding:10px 24px;border-radius:8px;font-size:0.85rem;cursor:pointer;transition:all 0.2s}
+    .share-btn:hover{background:rgba(255,255,255,0.08)}
+    .joined{color:rgba(255,255,255,0.25);font-size:0.75rem;margin-top:12px}
+
+    /* STATS */
+    .stats-section{padding:25px}
+    .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px}
+    .stat-card{background:#0d0d18;border:1px solid rgba(255,255,255,0.05);border-radius:14px;padding:18px;text-align:center}
+    .stat-card.green{border-color:rgba(0,245,160,0.15)}
+    .stat-card.red{border-color:rgba(255,107,107,0.15)}
+    .stat-label{font-size:0.7rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+    .stat-value{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800}
+    .stat-value.green{color:#00f5a0}
+    .stat-value.red{color:#ff6b6b}
+    .stat-value.white{color:white}
+    .stat-sub{font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:4px}
+    .stat-wide{background:#0d0d18;border:1px solid rgba(255,255,255,0.05);border-radius:14px;padding:18px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:5px}
+    .wide-item{text-align:center}
+    .wide-label{font-size:0.65rem;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+    .wide-value{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800}
+
+    /* SLIPS */
+    .slips-section{padding:0 25px}
+    .slips-header{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:15px;color:rgba(255,255,255,0.6)}
+    .slip-card{background:#0d0d18;border:1px solid rgba(255,255,255,0.05);border-radius:14px;padding:16px;margin-bottom:12px}
+    .slip-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .slip-bookie{display:flex;align-items:center;gap:8px}
+    .bookie-badge{background:rgba(255,255,255,0.06);padding:3px 10px;border-radius:6px;font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.6)}
+    .slip-time{font-size:0.7rem;color:rgba(255,255,255,0.3)}
+    .status-badge{padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:700}
+    .status-won{background:rgba(0,245,160,0.1);color:#00f5a0;border:1px solid rgba(0,245,160,0.2)}
+    .status-lost{background:rgba(255,107,107,0.1);color:#ff6b6b;border:1px solid rgba(255,107,107,0.2)}
+    .status-pending{background:rgba(255,193,7,0.1);color:#ffc107;border:1px solid rgba(255,193,7,0.2)}
+    .slip-title{font-family:'Syne',sans-serif;font-weight:700;margin-bottom:10px;font-size:0.95rem}
+    .slip-amounts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .amount-item{background:rgba(255,255,255,0.02);border-radius:8px;padding:8px;text-align:center}
+    .amount-label{font-size:0.62rem;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+    .amount-value{font-family:'Syne',sans-serif;font-size:0.88rem;font-weight:700}
+    .slip-image{width:100%;border-radius:8px;max-height:150px;object-fit:cover;margin-top:12px;cursor:pointer}
+
+    /* EMPTY */
+    .empty{text-align:center;padding:50px 20px;color:rgba(255,255,255,0.3)}
+    .empty-icon{font-size:3rem;margin-bottom:10px}
+
+    /* IMAGE MODAL */
+    .img-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:9999;align-items:center;justify-content:center}
+    .img-overlay.show{display:flex}
+    .img-overlay img{max-width:95%;max-height:90vh;border-radius:12px}
+    .img-close{position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.1);border:none;color:white;width:40px;height:40px;border-radius:50%;font-size:1.2rem;cursor:pointer}
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <button class="back-btn" onclick="history.back()">←</button>
+  <div class="logo">Bet<span>Track</span></div>
+  <div style="width:40px"></div>
+</nav>
+
+<!-- PROFILE HEADER -->
+<div class="profile-header">
+  <div class="profile-avatar">{{ user.avatar }}</div>
+  <div class="profile-name">{{ user.username }}</div>
+  <div class="profile-username">Member since {{ user.joined.strftime('%B %Y') }}</div>
+  {% if user.bio %}
+  <div class="profile-bio">{{ user.bio }}</div>
+  {% endif %}
+  <div class="verified-badge">✅ Verified Record</div>
+  <br/>
+  <button class="share-btn" onclick="shareProfile()">
+    📤 Share Profile
+  </button>
+  <div class="joined">Joined {{ user.joined.strftime('%d %B %Y') }}</div>
+</div>
+
+<!-- STATS -->
+<div class="stats-section">
+  <div class="stats-grid">
+    <div class="stat-card green">
+      <div class="stat-label">Win Rate</div>
+      <div class="stat-value green">{{ win_rate }}%</div>
+      <div class="stat-sub">{{ won }}W / {{ lost }}L</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Slips</div>
+      <div class="stat-value white">{{ slips|length }}</div>
+      <div class="stat-sub">Public slips</div>
+    </div>
+  </div>
+  <div class="stat-wide">
+    <div class="wide-item">
+      <div class="wide-label">Won</div>
+      <div class="wide-value" style="color:#00f5a0">{{ won }}</div>
+    </div>
+    <div class="wide-item">
+      <div class="wide-label">Lost</div>
+      <div class="wide-value" style="color:#ff6b6b">{{ lost }}</div>
+    </div>
+    <div class="wide-item">
+      <div class="wide-label">Pending</div>
+      <div class="wide-value" style="color:#ffc107">
+        {{ slips|selectattr('status','equalto','pending')|list|length }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PUBLIC SLIPS -->
+<div class="slips-section">
+  <div class="slips-header">Public Slips ({{ slips|length }})</div>
+
+  {% if slips %}
+    {% for slip in slips %}
+    <div class="slip-card">
+      <div class="slip-top">
+        <div class="slip-bookie">
+          {% if slip.bookmaker %}
+          <span class="bookie-badge">{{ slip.bookmaker }}</span>
+          {% endif %}
+          <span class="slip-time">{{ slip.posted_at.strftime('%d %b · %I:%M %p') }}</span>
+        </div>
+        <span class="status-badge status-{{ slip.status }}">
+          {% if slip.status == 'won' %}✅ Won
+          {% elif slip.status == 'lost' %}❌ Lost
+          {% else %}⏳ Pending{% endif %}
+        </span>
+      </div>
+
+      <div class="slip-title">{{ slip.title }}</div>
+
+      <div class="slip-amounts">
+        <div class="amount-item">
+          <div class="amount-label">Stake</div>
+          <div class="amount-value">₦{{ '{:,.0f}'.format(slip.stake) }}</div>
+        </div>
+        <div class="amount-item">
+          <div class="amount-label">Odds</div>
+          <div class="amount-value">{{ slip.odds }}</div>
+        </div>
+        <div class="amount-item">
+          <div class="amount-label">
+            {% if slip.status == 'won' %}Won{% else %}To Win{% endif %}
+          </div>
+          <div class="amount-value" style="color:{% if slip.status == 'won' %}#00f5a0{% else %}rgba(255,255,255,0.7){% endif %}">
+            ₦{{ '{:,.0f}'.format(slip.actual_win if slip.status == 'won' else slip.potential_win) }}
+          </div>
+        </div>
+      </div>
+
+      {% if slip.image_url %}
+      <img src="{{ slip.image_url }}" class="slip-image"
+           onclick="showImage('{{ slip.image_url }}')"/>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% else %}
+  <div class="empty">
+    <div class="empty-icon">🎯</div>
+    <p>No public slips yet</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- IMAGE MODAL -->
+<div class="img-overlay" id="imgOverlay" onclick="hideImage()">
+  <button class="img-close" onclick="hideImage()">✕</button>
+  <img id="imgFull" src="" alt="Slip"/>
+</div>
+
+<script>
+function showImage(url) {
+  document.getElementById('imgFull').src = url
+  document.getElementById('imgOverlay').classList.add('show')
+}
+function hideImage() {
+  document.getElementById('imgOverlay').classList.remove('show')
+}
+function shareProfile() {
+  const url = window.location.href
+  if (navigator.share) {
+    navigator.share({
+      title: '{{ user.username }} on BetTrack',
+      text:  'Check out my verified betting record on BetTrack! Win Rate: {{ win_rate }}%',
+      url:   url
+    })
+  } else {
+    navigator.clipboard.writeText(url)
+      .then(() => alert('✅ Profile link copied!'))
+  }
+}
+</script>
+</body>
+</html>
