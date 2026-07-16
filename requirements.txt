@@ -1,0 +1,11 @@
+flask
+flask-sqlalchemy
+flask-migrate
+flask-wtf
+bcrypt
+cloudinary
+psycopg2-binary
+gunicorn
+gevent
+gevent-websocket
+python-dotenv
