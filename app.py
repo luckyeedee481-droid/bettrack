@@ -215,7 +215,13 @@ def logout():
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    user  = User.query.get(session["user_id"])
+    user = User.query.get(session["user_id"])
+
+    # ✅ If user not found clear session and redirect
+    if not user:
+        session.clear()
+        return redirect(url_for("index"))
+
     slips = Slip.query.filter_by(user_id=user.id)\
                       .order_by(Slip.posted_at.desc()).all()
 
@@ -258,6 +264,9 @@ def post_slip():
 @login_required
 def submit_slip():
     user      = User.query.get(session["user_id"])
+  if not user:
+        session.clear()
+        return jsonify({"error": "Session expired. Please login again"}), 401
     title     = sanitize(request.form.get("title",        ""))
     slip_code = sanitize(request.form.get("slip_code",    ""))
     bookmaker = sanitize(request.form.get("bookmaker",    ""))
