@@ -291,6 +291,7 @@ def submit_slip():
                 logger.warning(f"Image upload failed: {e}")
         else:
             logger.warning("Cloudinary not enabled — skipping image upload")
+          
     if not image_url and not slip_code:
         return jsonify({"error": "Please upload an image or enter a slip code"}), 400
 
