@@ -6,8 +6,21 @@ from flask_wtf.csrf import CSRFProtect, generate_csrf
 from datetime import datetime, timedelta
 from functools import wraps
 from collections import defaultdict
-import bcrypt, os, re, time, logging, cloudinary
-import cloudinary.uploader
+import bcrypt, os, re, time, logging
+
+# Only import cloudinary if configured
+try:
+    import cloudinary
+    import cloudinary.uploader
+    cloudinary.config(
+        cloud_name = os.environ.get("CLOUDINARY_CLOUD_NAME", ""),
+        api_key    = os.environ.get("CLOUDINARY_API_KEY",    ""),
+        api_secret = os.environ.get("CLOUDINARY_API_SECRET", "")
+    )
+    CLOUDINARY_ENABLED = True
+except:
+    CLOUDINARY_ENABLED = False
+    print("⚠️ Cloudinary not configured")
 
 app = Flask(__name__)
 
