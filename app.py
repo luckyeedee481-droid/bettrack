@@ -268,8 +268,9 @@ def submit_slip():
     image_url = ""
 
     if "slip_image" in request.files:
-        file = request.files["slip_image"]
-        if file and file.filename:
+    file = request.files["slip_image"]
+    if file and file.filename:
+        if CLOUDINARY_ENABLED:
             try:
                 result    = cloudinary.uploader.upload(
                     file,
@@ -279,7 +280,8 @@ def submit_slip():
                 image_url = result["secure_url"]
             except Exception as e:
                 logger.warning(f"Image upload failed: {e}")
-
+        else:
+            logger.warning("Cloudinary not enabled — skipping image upload")
     if not image_url and not slip_code:
         return jsonify({"error": "Please upload an image or enter a slip code"}), 400
 
