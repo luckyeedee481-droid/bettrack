@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>BetTrack — Dashboard</title>
@@ -160,6 +161,17 @@
   </div>
 </div>
 
+  <!-- CHARTS -->
+<div class="charts-section" style="padding:25px">
+  <div class="section-label">Performance Trend</div>
+  <canvas id="winLossChart" height="120"></canvas>
+  
+  <div style="margin-top:30px">
+    <div class="section-label">Wins by Market</div>
+    <canvas id="marketChart" height="180"></canvas>
+  </div>
+</div>
+  
 <!-- FILTER TABS -->
 <div class="filter-tabs">
   <button class="filter-tab active" onclick="filterSlips('all',this)">All Slips</button>
@@ -378,6 +390,40 @@ function showImage(url) {
 function hideImage() {
   document.getElementById('imgOverlay').classList.remove('show')
 }
+// Sample data - replace with real data from backend later
+const ctx1 = document.getElementById('winLossChart').getContext('2d');
+new Chart(ctx1, {
+  type: 'line',
+  data: {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    datasets: [{
+      label: 'Wins',
+      data: [5, 8, 12, 7, 15, 10],
+      borderColor: '#00f5a0',
+      tension: 0.3
+    }, {
+      label: 'Losses',
+      data: [8, 6, 9, 11, 5, 7],
+      borderColor: '#ff6b6b',
+      tension: 0.3
+    }]
+  },
+  options: { responsive: true, plugins: { legend: { display: true } } }
+});
+
+const ctx2 = document.getElementById('marketChart').getContext('2d');
+new Chart(ctx2, {
+  type: 'bar',
+  data: {
+    labels: ['Sportybet', 'Bet9ja', '1xBet', 'Betway'],
+    datasets: [{
+      label: 'Win Rate %',
+      data: [58, 45, 62, 51],
+      backgroundColor: '#00f5a0'
+    }]
+  },
+  options: { responsive: true }
+});
 </script>
 </body>
 </html>
