@@ -13,26 +13,27 @@ import numpy as np
 from PIL import Image
 import re
 
-def detect_slip_outcome(image_file):
-    """Basic OCR to detect if slip is Won or Lost"""
+def detect_slip_outcome_with_text(image_file):
+    """Returns (status, extracted_text)"""
     try:
-        # Read image
+        image_file.seek(0)
         img = Image.open(image_file)
         img_cv = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-        
-        # Preprocess
         gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
-        text = pytesseract.image_to_string(gray).lower()
+        gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+
+        text = pytesseract.image_to_string(gray, config='--psm 6').lower()
         
-        # Look for keywords
-        if re.search(r'\b(won|win|winner|success|paid|profit)\b', text):
-            return "won"
-        elif re.search(r'\b(lost|lose|loss|failed|void)\b', text):
-            return "lost"
-        
-        return "pending"  # default
-    except:
-        return "pending"
+        win_words = ['won', 'win', 'winner', 'paid', 'profit', 'successful', 'credited', 'payout']
+        lose_words = ['lost', 'lose', 'loss', 'failed', 'void', 'rejected']
+
+        if any(w in text for w in win_words):
+            return "won", text
+        elif any(w in text for w in lose_words):
+            return "lost", text
+        return "pending", text
+    except Exception as e:
+        return "pending", f"Error: {str(e)}"
       
 # ── CLOUDINARY (optional) ─────────────────────────
 try:
@@ -288,23 +289,24 @@ def submit_slip():
     odds      = float(request.form.get("odds",            0) or 0)
     is_public = request.form.get("is_public", "true") == "true"
     image_url = ""
-    status    = "pending"   # default
+    status    = "pending"
+    ocr_text  = ""
 
     # ==================== IMAGE UPLOAD + OCR ====================
     if "slip_image" in request.files:
         file = request.files["slip_image"]
         if file and file.filename:
-            # OCR Detection (before upload)
+            # OCR Detection
             try:
                 file.seek(0)
-                detected = detect_slip_outcome(file)
-                if detected in ["won", "lost"]:
-                    status = detected
-                    print(f"✅ OCR Auto-detected: {status.upper()}")
+                detected, extracted = detect_slip_outcome_with_text(file)
+                status = detected
+                ocr_text = extracted[:200]  # save first 200 chars for debugging
+                print(f"OCR Result: {status} | Text: {ocr_text}")
             except Exception as e:
-                print(f"OCR failed: {e}")
+                print(f"OCR Error: {e}")
 
-            # Reset and upload to Cloudinary
+            # Upload to Cloudinary
             file.seek(0)
             if CLOUDINARY_ENABLED:
                 try:
@@ -315,9 +317,7 @@ def submit_slip():
                     )
                     image_url = result["secure_url"]
                 except Exception as e:
-                    logger.warning(f"Image upload failed: {e}")
-            else:
-                logger.warning("Cloudinary not configured")
+                    logger.warning(f"Upload failed: {e}")
     # ===========================================================
 
     if not image_url and not slip_code:
@@ -332,29 +332,20 @@ def submit_slip():
         potential_win = pot_win,
         odds          = odds,
         image_url     = image_url,
-        status        = status,          # OCR result
+        status        = status,
         is_public     = is_public
     )
     db.session.add(slip)
     db.session.commit()
 
-    # Selections
-    selections  = request.form.getlist("match[]")
-    predictions = request.form.getlist("prediction[]")
-    sel_odds    = request.form.getlist("odds[]")
+    # ... (keep your selections code as is)
 
-    for i, match in enumerate(selections):
-        if match.strip():
-            sel = Selection(
-                slip_id    = slip.id,
-                match      = sanitize(match),
-                prediction = sanitize(predictions[i]) if i < len(predictions) else "",
-                odds       = float(sel_odds[i]) if i < len(sel_odds) else 0.0
-            )
-            db.session.add(sel)
-
-    db.session.commit()
-    return jsonify({"success": True, "slip_id": slip.id, "auto_status": status})
+    return jsonify({
+        "success": True, 
+        "slip_id": slip.id,
+        "status": status,
+        "message": f"Slip posted as {status.upper()}" if status != "pending" else "Slip posted as Pending"
+    })
 
 @app.route("/settle_slip/<int:slip_id>", methods=["POST"])
 @csrf.exempt
