@@ -161,13 +161,13 @@
   </div>
 </div>
 
-  <!-- CHARTS -->
+<!-- CHARTS -->
 <div class="charts-section" style="padding:25px">
   <div class="section-label">Performance Trend</div>
-  <canvas id="winLossChart" height="120"></canvas>
+  <canvas id="winLossChart" height="140"></canvas>
   
-  <div style="margin-top:30px">
-    <div class="section-label">Wins by Market</div>
+  <div style="margin-top:35px">
+    <div class="section-label">Wins by Bookmaker</div>
     <canvas id="marketChart" height="180"></canvas>
   </div>
 </div>
@@ -390,39 +390,52 @@ function showImage(url) {
 function hideImage() {
   document.getElementById('imgOverlay').classList.remove('show')
 }
-// Sample data - replace with real data from backend later
+// CHARTS (Dynamic - empty until you add real data)
 const ctx1 = document.getElementById('winLossChart').getContext('2d');
-new Chart(ctx1, {
+const winLossChart = new Chart(ctx1, {
   type: 'line',
   data: {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    labels: [],
     datasets: [{
       label: 'Wins',
-      data: [5, 8, 12, 7, 15, 10],
+      data: [],
       borderColor: '#00f5a0',
-      tension: 0.3
+      tension: 0.3,
+      borderWidth: 3
     }, {
       label: 'Losses',
-      data: [8, 6, 9, 11, 5, 7],
+      data: [],
       borderColor: '#ff6b6b',
-      tension: 0.3
+      tension: 0.3,
+      borderWidth: 3
     }]
   },
-  options: { responsive: true, plugins: { legend: { display: true } } }
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: true, position: 'top' }
+    },
+    scales: {
+      y: { beginAtZero: true }
+    }
+  }
 });
 
 const ctx2 = document.getElementById('marketChart').getContext('2d');
-new Chart(ctx2, {
+const marketChart = new Chart(ctx2, {
   type: 'bar',
   data: {
-    labels: ['Sportybet', 'Bet9ja', '1xBet', 'Betway'],
+    labels: [],
     datasets: [{
       label: 'Win Rate %',
-      data: [58, 45, 62, 51],
+      data: [],
       backgroundColor: '#00f5a0'
     }]
   },
-  options: { responsive: true }
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } }
+  }
 });
 </script>
 </body>
