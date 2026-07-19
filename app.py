@@ -289,10 +289,19 @@ def submit_slip():
     odds      = float(request.form.get("odds",            0) or 0)
     is_public = request.form.get("is_public", "true") == "true"
     image_url = ""
+    status    = "pending"   # default
 
     if "slip_image" in request.files:
         file = request.files["slip_image"]
         if file and file.filename:
+          try:
+                file.seek(0)  # reset pointer
+                detected = detect_slip_outcome(file)
+                if detected in ["won", "lost"]:
+                    status = detected
+                    print(f"OCR detected: {status}")  # for debugging
+            except Exception as e:
+                print(f"OCR failed: {e}")
             if CLOUDINARY_ENABLED:
                 try:
                     result    = cloudinary.uploader.upload(
@@ -325,6 +334,7 @@ def submit_slip():
         potential_win = pot_win,
         odds          = odds,
         image_url     = image_url,
+        status        = staus,
         is_public     = is_public
     )
     db.session.add(slip)
