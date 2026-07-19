@@ -270,7 +270,6 @@ def dashboard():
 @login_required
 def post_slip():
     return render_template("post_slip.html")
-
 @app.route("/submit_slip", methods=["POST"])
 @csrf.exempt
 @login_required
@@ -291,36 +290,35 @@ def submit_slip():
     image_url = ""
     status    = "pending"   # default
 
+    # ==================== IMAGE UPLOAD + OCR ====================
     if "slip_image" in request.files:
         file = request.files["slip_image"]
         if file and file.filename:
-          try:
-                file.seek(0)  # reset pointer
+            # OCR Detection (before upload)
+            try:
+                file.seek(0)
                 detected = detect_slip_outcome(file)
                 if detected in ["won", "lost"]:
                     status = detected
-                    print(f"OCR detected: {status}")  # for debugging
+                    print(f"✅ OCR Auto-detected: {status.upper()}")
             except Exception as e:
                 print(f"OCR failed: {e}")
+
+            # Reset and upload to Cloudinary
+            file.seek(0)
             if CLOUDINARY_ENABLED:
                 try:
-                    result    = cloudinary.uploader.upload(
+                    result = cloudinary.uploader.upload(
                         file,
-                        folder    = "bettrack/slips",
-                        public_id = f"slip_{user.id}_{int(time.time())}"
+                        folder="bettrack/slips",
+                        public_id=f"slip_{user.id}_{int(time.time())}"
                     )
                     image_url = result["secure_url"]
                 except Exception as e:
                     logger.warning(f"Image upload failed: {e}")
             else:
-                logger.warning("Cloudinary not configured — skipping image upload")
-                  # Auto-detect outcome if image uploaded
-    status = "pending"
-    if "slip_image" in request.files and request.files["slip_image"].filename:
-        file = request.files["slip_image"]
-        status = detect_slip_outcome(file)
-        # Reset file pointer for Cloudinary
-        file.seek(0)
+                logger.warning("Cloudinary not configured")
+    # ===========================================================
 
     if not image_url and not slip_code:
         return jsonify({"error": "Please upload an image or enter a slip code"}), 400
@@ -334,12 +332,13 @@ def submit_slip():
         potential_win = pot_win,
         odds          = odds,
         image_url     = image_url,
-        status        = staus,
+        status        = status,          # OCR result
         is_public     = is_public
     )
     db.session.add(slip)
     db.session.commit()
 
+    # Selections
     selections  = request.form.getlist("match[]")
     predictions = request.form.getlist("prediction[]")
     sel_odds    = request.form.getlist("odds[]")
@@ -355,7 +354,7 @@ def submit_slip():
             db.session.add(sel)
 
     db.session.commit()
-    return jsonify({"success": True, "slip_id": slip.id})
+    return jsonify({"success": True, "slip_id": slip.id, "auto_status": status})
 
 @app.route("/settle_slip/<int:slip_id>", methods=["POST"])
 @csrf.exempt
