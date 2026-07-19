@@ -7,7 +7,33 @@ from datetime import datetime, timedelta
 from functools import wraps
 from collections import defaultdict
 import bcrypt, os, re, time, logging
+import pytesseract
+import cv2
+import numpy as np
+from PIL import Image
+import re
 
+def detect_slip_outcome(image_file):
+    """Basic OCR to detect if slip is Won or Lost"""
+    try:
+        # Read image
+        img = Image.open(image_file)
+        img_cv = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+        
+        # Preprocess
+        gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
+        text = pytesseract.image_to_string(gray).lower()
+        
+        # Look for keywords
+        if re.search(r'\b(won|win|winner|success|paid|profit)\b', text):
+            return "won"
+        elif re.search(r'\b(lost|lose|loss|failed|void)\b', text):
+            return "lost"
+        
+        return "pending"  # default
+    except:
+        return "pending"
+      
 # ── CLOUDINARY (optional) ─────────────────────────
 try:
     import cloudinary
@@ -279,6 +305,13 @@ def submit_slip():
                     logger.warning(f"Image upload failed: {e}")
             else:
                 logger.warning("Cloudinary not configured — skipping image upload")
+                  # Auto-detect outcome if image uploaded
+    status = "pending"
+    if "slip_image" in request.files and request.files["slip_image"].filename:
+        file = request.files["slip_image"]
+        status = detect_slip_outcome(file)
+        # Reset file pointer for Cloudinary
+        file.seek(0)
 
     if not image_url and not slip_code:
         return jsonify({"error": "Please upload an image or enter a slip code"}), 400
